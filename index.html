@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --tg-theme-bg-color: #ffffff;
+      --tg-theme-text-color: #000000;
+      --tg-theme-hint-color: #999999;
+      --tg-theme-link-color: #2678b6;
+      --tg-theme-button-color: #2678b6;
+      --tg-theme-button-text-color: #ffffff;
+      --tg-theme-secondary-bg-color: #f0f0f0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--tg-theme-bg-color);
+      color: var(--tg-theme-text-color);
+      min-height: 100vh;
+      padding: 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    body.ready { opacity: 1; }
+
+    .header {
+      text-align: center;
+      padding: 24px 0 20px;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--tg-theme-button-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 28px;
+      color: var(--tg-theme-button-text-color);
+      font-weight: 700;
+    }
+
+    .name {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .username {
+      font-size: 14px;
+      color: var(--tg-theme-hint-color);
+    }
+
+    .card {
+      background: var(--tg-theme-secondary-bg-color);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--tg-theme-hint-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .info-row:not(:last-child) {
+      border-bottom: 1px solid rgba(128,128,128,0.15);
+    }
+
+    .info-label {
+      font-size: 15px;
+      color: var(--tg-theme-hint-color);
+    }
+
+    .info-value {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .action-btn {
+      background: var(--tg-theme-secondary-bg-color);
+      border: none;
+      border-radius: 14px;
+      padding: 18px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .action-btn:active {
+      transform: scale(0.96);
+      opacity: 0.7;
+    }
+
+    .action-icon {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .action-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--tg-theme-text-color);
+    }
+
+    .alert-msg {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--tg-theme-text-color);
+      color: var(--tg-theme-bg-color);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .alert-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--tg-theme-hint-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 20px 0 10px;
+      padding-left: 4px;
+    }
+
+    .counter-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .counter-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--tg-theme-button-color);
+      color: var(--tg-theme-button-text-color);
+      font-size: 22px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .counter-btn:active { transform: scale(0.9); }
+
+    .counter-value {
+      font-size: 40px;
+      font-weight: 800;
+      min-width: 60px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="avatar" id="avatar">?</div>
+    <div class="name" id="name">Загрузка...</div>
+    <div class="username" id="username"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Информация</div>
+    <div class="info-row">
+      <span class="info-label">Платформа</span>
+      <span class="info-value" id="platform">—</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Версия</span>
+      <span class="info-value" id="version">—</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Тема</span>
+      <span class="info-value" id="theme">—</span>
+    </div>
+  </div>
+
+  <div class="section-title">Демо: счётчик</div>
+  <div class="card">
+    <div class="counter-wrap">
+      <button class="counter-btn" onclick="changeCounter(-1)">−</button>
+      <div class="counter-value" id="counter">0</div>
+      <button class="counter-btn" onclick="changeCounter(1)">+</button>
+    </div>
+  </div>
+
+  <div class="section-title">Действия</div>
+  <div class="actions">
+    <button class="action-btn" onclick="doHaptic()">
+      <div class="action-icon">📳</div>
+      <div class="action-label">Вибрация</div>
+    </button>
+    <button class="action-btn" onclick="doAlert()">
+      <div class="action-icon">💬</div>
+      <div class="action-label">Алерт</div>
+    </button>
+    <button class="action-btn" onclick="doConfirm()">
+      <div class="action-icon">❓</div>
+      <div class="action-label">Подтвердить</div>
+    </button>
+    <button class="action-btn" onclick="doSendData()">
+      <div class="action-icon">📤</div>
+      <div class="action-label">Отправить боту</div>
+    </button>
+  </div>
+
+  <div class="alert-msg" id="toast"></div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+
+    // Инициализация
+    tg.ready();
+    tg.expand();
+
+    // MainButton — кнопка внизу экрана
+    tg.MainButton.setText('Готово ✓');
+    tg.MainButton.show();
+    tg.MainButton.onClick(() => {
+      tg.sendData(JSON.stringify({ action: 'done', counter: counter }));
+    });
+
+    // Заполняем данные пользователя
+    const user = tg.initDataUnsafe?.user;
+
+    if (user) {
+      const initials = (user.first_name?.[0] || '') + (user.last_name?.[0] || '');
+      document.getElementById('avatar').textContent = initials || '?';
+      document.getElementById('name').textContent =
+        [user.first_name, user.last_name].filter(Boolean).join(' ');
+      document.getElementById('username').textContent =
+        user.username ? '@' + user.username : 'ID: ' + user.id;
+    } else {
+      document.getElementById('name').textContent = 'Откройте в Telegram';
+      document.getElementById('username').textContent = 'Данные доступны только внутри приложения';
+    }
+
+    // Инфо
+    document.getElementById('platform').textContent = tg.platform || 'web';
+    document.getElementById('version').textContent = tg.version || '—';
+    document.getElementById('theme').textContent =
+      tg.colorScheme === 'dark' ? '🌙 Тёмная' : '☀️ Светлая';
+
+    // Счётчик
+    let counter = 0;
+    function changeCounter(delta) {
+      counter += delta;
+      document.getElementById('counter').textContent = counter;
+      if (tg.HapticFeedback) {
+        tg.HapticFeedback.impactOccurred('light');
+      }
+    }
+
+    // Действия
+    function doHaptic() {
+      if (tg.HapticFeedback) {
+        tg.HapticFeedback.notificationOccurred('success');
+        showToast('Вибрация отправлена!');
+      } else {
+        showToast('HapticFeedback недоступен');
+      }
+    }
+
+    function doAlert() {
+      tg.showAlert('Привет из Mini App! 👋');
+    }
+
+    function doConfirm() {
+      tg.showConfirm('Отправить данные боту?', (ok) => {
+        showToast(ok ? 'Подтверждено ✓' : 'Отменено ✗');
+      });
+    }
+
+    function doSendData() {
+      try {
+        tg.sendData(JSON.stringify({
+          action: 'demo',
+          counter: counter,
+          timestamp: Date.now()
+        }));
+      } catch (e) {
+        showToast('sendData работает только из бота');
+      }
+    }
+
+    // Toast
+    function showToast(text) {
+      const el = document.getElementById('toast');
+      el.textContent = text;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    // Показать страницу
+    document.body.classList.add('ready');
+  </script>
+</body>
+</html>
