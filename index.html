@@ -3,339 +3,400 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Mini App</title>
+  <title>Shira Kitchen</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --tg-theme-bg-color: #ffffff;
-      --tg-theme-text-color: #000000;
-      --tg-theme-hint-color: #999999;
-      --tg-theme-link-color: #2678b6;
-      --tg-theme-button-color: #2678b6;
-      --tg-theme-button-text-color: #ffffff;
-      --tg-theme-secondary-bg-color: #f0f0f0;
+      --bg: var(--tg-theme-bg-color, #ffffff);
+      --text: var(--tg-theme-text-color, #1a1a1a);
+      --hint: var(--tg-theme-hint-color, #999999);
+      --btn: var(--tg-theme-button-color, #2a9d5c);
+      --btn-text: var(--tg-theme-button-text-color, #ffffff);
+      --card: var(--tg-theme-secondary-bg-color, #f4f4f5);
+      --accent: #2a9d5c;
+      --accent-light: #e8f5ee;
+      --radius: 16px;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--tg-theme-bg-color);
-      color: var(--tg-theme-text-color);
+      font-family: 'Nunito', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      padding: 16px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      padding: 0 16px 120px;
+      -webkit-tap-highlight-color: transparent;
+      opacity: 0; transition: opacity 0.3s;
     }
-
     body.ready { opacity: 1; }
 
-    .header {
-      text-align: center;
-      padding: 24px 0 20px;
-    }
+    .logo { text-align: center; padding: 24px 0 8px; }
+    .logo-text { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .logo-text span { color: var(--accent); }
+    .logo-sub { font-size: 13px; color: var(--hint); margin-top: 2px; }
 
-    .avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: var(--tg-theme-button-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-      font-size: 28px;
-      color: var(--tg-theme-button-text-color);
-      font-weight: 700;
+    .tabs { display: flex; gap: 6px; margin: 16px 0; background: var(--card); border-radius: 12px; padding: 4px; }
+    .tab {
+      flex: 1; text-align: center; padding: 10px 0; font-size: 14px; font-weight: 700;
+      border-radius: 10px; cursor: pointer; transition: all 0.25s; color: var(--hint);
+      border: none; background: none; font-family: inherit;
     }
+    .tab.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
-    .name {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 4px;
+    .steps-bar { display: flex; gap: 6px; margin-bottom: 20px; }
+    .step-dot { flex: 1; height: 4px; border-radius: 2px; background: var(--card); transition: background 0.3s; }
+    .step-dot.done { background: var(--accent); }
+    .step-dot.current { background: var(--accent); opacity: 0.5; }
+
+    .section { display: none; }
+    .section.active { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .section-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .section-desc { font-size: 13px; color: var(--hint); margin-bottom: 16px; }
+
+    .options { display: flex; flex-direction: column; gap: 8px; }
+    .option {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      background: var(--card); border-radius: var(--radius); border: 2px solid transparent;
+      cursor: pointer; transition: all 0.2s;
     }
+    .option:active { transform: scale(0.98); }
+    .option.selected { border-color: var(--accent); background: var(--accent-light); }
 
-    .username {
-      font-size: 14px;
-      color: var(--tg-theme-hint-color);
+    .option-icon {
+      width: 44px; height: 44px; border-radius: 12px; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
     }
-
-    .card {
-      background: var(--tg-theme-secondary-bg-color);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 12px;
+    .option.selected .option-icon { background: var(--accent); }
+    .option.selected .option-icon span { filter: brightness(10); }
+    .option-info { flex: 1; }
+    .option-name { font-size: 15px; font-weight: 700; }
+    .option-price { font-size: 12px; color: var(--hint); margin-top: 1px; }
+    .option.selected .option-price { color: var(--accent); }
+    .option-check {
+      width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: white; transition: all 0.2s; flex-shrink: 0;
     }
+    .option.selected .option-check { background: var(--accent); border-color: var(--accent); }
 
-    .card-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--tg-theme-hint-color);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
+    .slider-wrap { background: var(--card); border-radius: var(--radius); padding: 20px 16px; }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .slider-label { font-size: 14px; color: var(--hint); }
+    .slider-value { font-size: 24px; font-weight: 800; }
+    .slider-value span { font-size: 16px; font-weight: 600; color: var(--hint); }
+
+    input[type="range"] {
+      width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+      border-radius: 3px; outline: none;
+      background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--val, 22%), #ddd var(--val, 22%));
     }
-
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent); border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer;
     }
+    .slider-marks { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: var(--hint); }
 
-    .info-row:not(:last-child) {
-      border-bottom: 1px solid rgba(128,128,128,0.15);
+    .result-card {
+      background: linear-gradient(135deg, var(--accent), #1e7a45);
+      border-radius: var(--radius); padding: 24px 20px; color: white; text-align: center; margin-bottom: 12px;
     }
+    .result-label { font-size: 13px; opacity: 0.8; }
+    .result-price { font-size: 36px; font-weight: 800; margin: 4px 0; }
+    .result-note { font-size: 12px; opacity: 0.7; }
 
-    .info-label {
-      font-size: 15px;
-      color: var(--tg-theme-hint-color);
+    .result-breakdown { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+    .breakdown-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+    .breakdown-row:not(:last-child) { border-bottom: 1px solid rgba(128,128,128,0.12); }
+    .breakdown-label { color: var(--hint); }
+    .breakdown-value { font-weight: 700; }
+
+    .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+    .btn {
+      flex: 1; padding: 14px; border-radius: 12px; border: none; font-family: inherit;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s;
     }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-secondary { background: var(--card); color: var(--text); }
 
-    .info-value {
-      font-size: 15px;
-      font-weight: 600;
+    .form-group { margin-bottom: 14px; }
+    .form-label { font-size: 13px; font-weight: 700; color: var(--hint); margin-bottom: 6px; display: block; }
+    .form-input {
+      width: 100%; padding: 14px 16px; border-radius: 12px; border: 2px solid #e0e0e0;
+      font-family: inherit; font-size: 16px; background: var(--card); color: var(--text);
+      outline: none; transition: border-color 0.2s;
     }
+    .form-input:focus { border-color: var(--accent); }
+    .form-input::placeholder { color: var(--hint); }
 
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 16px;
+    .success { text-align: center; padding: 40px 20px; }
+    .success-icon {
+      width: 80px; height: 80px; border-radius: 50%; background: var(--accent-light);
+      display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 16px;
     }
+    .success-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+    .success-text { font-size: 14px; color: var(--hint); line-height: 1.5; }
 
-    .action-btn {
-      background: var(--tg-theme-secondary-bg-color);
-      border: none;
-      border-radius: 14px;
-      padding: 18px 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-      -webkit-tap-highlight-color: transparent;
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 99;
     }
-
-    .action-btn:active {
-      transform: scale(0.96);
-      opacity: 0.7;
-    }
-
-    .action-icon {
-      font-size: 28px;
-      margin-bottom: 6px;
-    }
-
-    .action-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--tg-theme-text-color);
-    }
-
-    .alert-msg {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--tg-theme-text-color);
-      color: var(--tg-theme-bg-color);
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      opacity: 0;
-      transition: all 0.3s ease;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-
-    .alert-msg.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .section-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--tg-theme-hint-color);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 20px 0 10px;
-      padding-left: 4px;
-    }
-
-    .counter-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .counter-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: none;
-      background: var(--tg-theme-button-color);
-      color: var(--tg-theme-button-text-color);
-      font-size: 22px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .counter-btn:active { transform: scale(0.9); }
-
-    .counter-value {
-      font-size: 40px;
-      font-weight: 800;
-      min-width: 60px;
-      text-align: center;
-    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="avatar" id="avatar">?</div>
-    <div class="name" id="name">Загрузка...</div>
-    <div class="username" id="username"></div>
+  <div class="logo">
+    <div class="logo-text">shir<span>A</span> кухни</div>
+    <div class="logo-sub">Калькулятор стоимости кухни</div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Информация</div>
-    <div class="info-row">
-      <span class="info-label">Платформа</span>
-      <span class="info-value" id="platform">—</span>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('calc')">🧮 Калькулятор</button>
+    <button class="tab" onclick="switchTab('order')">📐 Замер</button>
+  </div>
+
+  <div id="tab-calc">
+    <div class="steps-bar" id="stepsBar"></div>
+
+    <div class="section active" id="step-1">
+      <div class="section-title">Форма кухни</div>
+      <div class="section-desc">Выберите планировку вашей кухни</div>
+      <div class="options">
+        <div class="option" onclick="sel(this,'form','straight')">
+          <div class="option-icon"><span>━</span></div>
+          <div class="option-info"><div class="option-name">Прямая</div><div class="option-price">Вдоль одной стены</div></div>
+          <div class="option-check">✓</div>
+        </div>
+        <div class="option" onclick="sel(this,'form','l-shape')">
+          <div class="option-icon"><span>⌐</span></div>
+          <div class="option-info"><div class="option-name">Угловая (Г-образная)</div><div class="option-price">Коэффициент ×1.15</div></div>
+          <div class="option-check">✓</div>
+        </div>
+        <div class="option" onclick="sel(this,'form','u-shape')">
+          <div class="option-icon"><span>⊔</span></div>
+          <div class="option-info"><div class="option-name">П-образная</div><div class="option-price">Коэффициент ×1.3</div></div>
+          <div class="option-check">✓</div>
+        </div>
+        <div class="option" onclick="sel(this,'form','island')">
+          <div class="option-icon"><span>▣</span></div>
+          <div class="option-info"><div class="option-name">С островом</div><div class="option-price">Коэффициент ×1.5</div></div>
+          <div class="option-check">✓</div>
+        </div>
+      </div>
     </div>
-    <div class="info-row">
-      <span class="info-label">Версия</span>
-      <span class="info-value" id="version">—</span>
+
+    <div class="section" id="step-2">
+      <div class="section-title">Материал фасадов</div>
+      <div class="section-desc">Влияет на внешний вид и долговечность</div>
+      <div class="options">
+        <div class="option" onclick="sel(this,'facade','ldsp')">
+          <div class="option-icon"><span>🪵</span></div>
+          <div class="option-info"><div class="option-name">ЛДСП</div><div class="option-price">от 4 500 ₽/м.п.</div></div>
+          <div class="option-check">✓</div>
+        </div>
+        <div class="option" onclick="sel(this,'facade','mdf-film')">
+          <div class="option-icon"><span>🎨</span></div>
+          <div class="option-info"><div class="option-name">МДФ плёнка</div><div class="option-price">от 6 000 ₽/м.п.</div></div>
+          <div class="option-check">✓</div>
+        </div>
+        <div class="option" onclick="sel(this,'facade','mdf-enamel')">
+          <div class="option-icon"><span>✨</span></div>
+          <div class="option-info"><div class="option-name">МДФ эмаль</div><div class="option-price">от 9 000 ₽/м.п.</div></div>
+          <div class="option-check">✓</div>
+        </div>
+        <div class="option" onclick="sel(this,'facade','massiv')">
+          <div class="option-icon"><span>🌳</span></div>
+          <div class="option-info"><div class="option-name">Массив дерева</div><div class="option-price">от 15 000 ₽/м.п.</div></div>
+          <div class="option-check">✓</div>
+        </div>
+      </div>
     </div>
-    <div class="info-row">
-      <span class="info-label">Тема</span>
-      <span class="info-value" id="theme">—</span>
+
+    <div class="section" id="step-3">
+      <div class="section-title">Столешница</div>
+      <div class="section-desc">Рабочая поверхность вашей кухни</div>
+      <div class="options">
+        <div class="option" onclick="sel(this,'counter','laminate')">
+          <div class="option-icon"><span>📋</span></div>
+          <div class="option-info"><div class="option-name">Ламинат (постформинг)</div><div class="option-price">от 2 500 ₽/м.п.</div></div>
+          <div class="option-check">✓</div>
+        </div>
+        <div class="option" onclick="sel(this,'counter','stone')">
+          <div class="option-icon"><span>🪨</span></div>
+          <div class="option-info"><div class="option-name">Искусственный камень</div><div class="option-price">от 8 000 ₽/м.п.</div></div>
+          <div class="option-check">✓</div>
+        </div>
+        <div class="option" onclick="sel(this,'counter','granite')">
+          <div class="option-icon"><span>💎</span></div>
+          <div class="option-info"><div class="option-name">Натуральный камень</div><div class="option-price">от 15 000 ₽/м.п.</div></div>
+          <div class="option-check">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="step-4">
+      <div class="section-title">Длина кухни</div>
+      <div class="section-desc">Укажите общую длину в метрах</div>
+      <div class="slider-wrap">
+        <div class="slider-header">
+          <span class="slider-label">Длина</span>
+          <span class="slider-value" id="lengthValue">2.5 <span>м</span></span>
+        </div>
+        <input type="range" id="lengthSlider" min="1.5" max="6" step="0.1" value="2.5" oninput="updateSlider(this)">
+        <div class="slider-marks"><span>1.5 м</span><span>3 м</span><span>4.5 м</span><span>6 м</span></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="showResult()">Рассчитать стоимость</button>
+    </div>
+
+    <div class="section" id="step-5">
+      <div class="result-card">
+        <div class="result-label">Примерная стоимость</div>
+        <div class="result-price" id="totalPrice">0 ₽</div>
+        <div class="result-note">Точная цена после замера</div>
+      </div>
+      <div class="result-breakdown" id="breakdown"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="resetCalc()">Пересчитать</button>
+        <button class="btn btn-primary" onclick="switchTab('order')">Заявка на замер</button>
+      </div>
     </div>
   </div>
 
-  <div class="section-title">Демо: счётчик</div>
-  <div class="card">
-    <div class="counter-wrap">
-      <button class="counter-btn" onclick="changeCounter(-1)">−</button>
-      <div class="counter-value" id="counter">0</div>
-      <button class="counter-btn" onclick="changeCounter(1)">+</button>
+  <div id="tab-order" style="display:none;">
+    <div class="section active" id="order-form">
+      <div class="section-title">Заявка на бесплатный замер</div>
+      <div class="section-desc">Замерщик приедет в удобное время и рассчитает точную стоимость</div>
+      <div class="form-group"><label class="form-label">Ваше имя</label><input class="form-input" id="inputName" type="text" placeholder="Как к вам обращаться?"></div>
+      <div class="form-group"><label class="form-label">Телефон</label><input class="form-input" id="inputPhone" type="tel" placeholder="+7 (___) ___-__-__"></div>
+      <div class="form-group"><label class="form-label">Адрес (район / улица)</label><input class="form-input" id="inputAddress" type="text" placeholder="Нальчик, ул. ..."></div>
+      <div class="form-group"><label class="form-label">Комментарий</label><input class="form-input" id="inputComment" type="text" placeholder="Пожелания, удобное время..."></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="submitOrder()">Отправить заявку</button>
+    </div>
+    <div class="section" id="order-success">
+      <div class="success">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Заявка отправлена!</div>
+        <div class="success-text">Мы свяжемся с вами в ближайшее время для согласования даты и времени замера.</div>
+        <button class="btn btn-secondary" style="margin-top:20px" onclick="resetOrder()">Новая заявка</button>
+      </div>
     </div>
   </div>
 
-  <div class="section-title">Действия</div>
-  <div class="actions">
-    <button class="action-btn" onclick="doHaptic()">
-      <div class="action-icon">📳</div>
-      <div class="action-label">Вибрация</div>
-    </button>
-    <button class="action-btn" onclick="doAlert()">
-      <div class="action-icon">💬</div>
-      <div class="action-label">Алерт</div>
-    </button>
-    <button class="action-btn" onclick="doConfirm()">
-      <div class="action-icon">❓</div>
-      <div class="action-label">Подтвердить</div>
-    </button>
-    <button class="action-btn" onclick="doSendData()">
-      <div class="action-icon">📤</div>
-      <div class="action-label">Отправить боту</div>
-    </button>
-  </div>
-
-  <div class="alert-msg" id="toast"></div>
+  <div class="toast" id="toast"></div>
 
   <script>
     const tg = window.Telegram.WebApp;
+    tg.ready(); tg.expand();
 
-    // Инициализация
-    tg.ready();
-    tg.expand();
+    const PRICES = {
+      facade: { 'ldsp': 4500, 'mdf-film': 6000, 'mdf-enamel': 9000, 'massiv': 15000 },
+      counter: { 'laminate': 2500, 'stone': 8000, 'granite': 15000 },
+      formK: { 'straight': 1, 'l-shape': 1.15, 'u-shape': 1.3, 'island': 1.5 }
+    };
+    const LABELS = {
+      form: { 'straight': 'Прямая', 'l-shape': 'Угловая', 'u-shape': 'П-образная', 'island': 'С островом' },
+      facade: { 'ldsp': 'ЛДСП', 'mdf-film': 'МДФ плёнка', 'mdf-enamel': 'МДФ эмаль', 'massiv': 'Массив' },
+      counter: { 'laminate': 'Ламинат', 'stone': 'Искусств. камень', 'granite': 'Натуральный камень' }
+    };
 
-    // MainButton — кнопка внизу экрана
-    tg.MainButton.setText('Готово ✓');
-    tg.MainButton.show();
-    tg.MainButton.onClick(() => {
-      tg.sendData(JSON.stringify({ action: 'done', counter: counter }));
-    });
+    let calc = { form: null, facade: null, counter: null }, currentStep = 1;
 
-    // Заполняем данные пользователя
-    const user = tg.initDataUnsafe?.user;
-
-    if (user) {
-      const initials = (user.first_name?.[0] || '') + (user.last_name?.[0] || '');
-      document.getElementById('avatar').textContent = initials || '?';
-      document.getElementById('name').textContent =
-        [user.first_name, user.last_name].filter(Boolean).join(' ');
-      document.getElementById('username').textContent =
-        user.username ? '@' + user.username : 'ID: ' + user.id;
-    } else {
-      document.getElementById('name').textContent = 'Откройте в Telegram';
-      document.getElementById('username').textContent = 'Данные доступны только внутри приложения';
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (tab==='calc'&&i===0)||(tab==='order'&&i===1)));
+      document.getElementById('tab-calc').style.display = tab==='calc'?'block':'none';
+      document.getElementById('tab-order').style.display = tab==='order'?'block':'none';
+      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
     }
 
-    // Инфо
-    document.getElementById('platform').textContent = tg.platform || 'web';
-    document.getElementById('version').textContent = tg.version || '—';
-    document.getElementById('theme').textContent =
-      tg.colorScheme === 'dark' ? '🌙 Тёмная' : '☀️ Светлая';
-
-    // Счётчик
-    let counter = 0;
-    function changeCounter(delta) {
-      counter += delta;
-      document.getElementById('counter').textContent = counter;
-      if (tg.HapticFeedback) {
-        tg.HapticFeedback.impactOccurred('light');
-      }
+    function renderSteps() {
+      const bar = document.getElementById('stepsBar'); bar.innerHTML = '';
+      for (let i=1;i<=5;i++) { const d=document.createElement('div'); d.className='step-dot'+(i<currentStep?' done':i===currentStep?' current':''); bar.appendChild(d); }
     }
 
-    // Действия
-    function doHaptic() {
-      if (tg.HapticFeedback) {
-        tg.HapticFeedback.notificationOccurred('success');
-        showToast('Вибрация отправлена!');
-      } else {
-        showToast('HapticFeedback недоступен');
-      }
+    function goToStep(n) {
+      currentStep = n;
+      for (let i=1;i<=5;i++) { const el=document.getElementById('step-'+i); if(el) el.classList.toggle('active',i===n); }
+      renderSteps();
     }
 
-    function doAlert() {
-      tg.showAlert('Привет из Mini App! 👋');
+    function sel(el, key, value) {
+      calc[key] = value;
+      el.parentElement.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+      el.classList.add('selected');
+      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+      setTimeout(()=>{ if(key==='form')goToStep(2); else if(key==='facade')goToStep(3); else if(key==='counter')goToStep(4); }, 250);
     }
 
-    function doConfirm() {
-      tg.showConfirm('Отправить данные боту?', (ok) => {
-        showToast(ok ? 'Подтверждено ✓' : 'Отменено ✗');
-      });
+    function updateSlider(el) {
+      const pct=((el.value-el.min)/(el.max-el.min))*100;
+      el.style.setProperty('--val',pct+'%');
+      document.getElementById('lengthValue').innerHTML=el.value+' <span>м</span>';
+    }
+    setTimeout(()=>updateSlider(document.getElementById('lengthSlider')),0);
+
+    function showResult() {
+      if(!calc.form||!calc.facade||!calc.counter){showToast('Заполните все параметры');return;}
+      const len=parseFloat(document.getElementById('lengthSlider').value);
+      const ft=PRICES.facade[calc.facade]*len, ct=PRICES.counter[calc.counter]*len;
+      const fk=PRICES.formK[calc.form], base=ft+ct, fit=Math.round(base*0.25);
+      const total=Math.round((base+fit)*fk);
+      document.getElementById('totalPrice').textContent=fmt(total)+' ₽';
+      document.getElementById('breakdown').innerHTML=`
+        <div class="breakdown-row"><span class="breakdown-label">Форма</span><span class="breakdown-value">${LABELS.form[calc.form]} (×${fk})</span></div>
+        <div class="breakdown-row"><span class="breakdown-label">Фасады (${LABELS.facade[calc.facade]})</span><span class="breakdown-value">${fmt(ft)} ₽</span></div>
+        <div class="breakdown-row"><span class="breakdown-label">Столешница</span><span class="breakdown-value">${fmt(ct)} ₽</span></div>
+        <div class="breakdown-row"><span class="breakdown-label">Фурнитура</span><span class="breakdown-value">${fmt(fit)} ₽</span></div>
+        <div class="breakdown-row"><span class="breakdown-label">Длина</span><span class="breakdown-value">${len} м</span></div>`;
+      if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      goToStep(5);
     }
 
-    function doSendData() {
-      try {
-        tg.sendData(JSON.stringify({
-          action: 'demo',
-          counter: counter,
-          timestamp: Date.now()
-        }));
-      } catch (e) {
-        showToast('sendData работает только из бота');
-      }
+    function resetCalc() {
+      calc={form:null,facade:null,counter:null};
+      document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+      document.getElementById('lengthSlider').value=2.5;
+      updateSlider(document.getElementById('lengthSlider'));
+      goToStep(1);
     }
 
-    // Toast
-    function showToast(text) {
-      const el = document.getElementById('toast');
-      el.textContent = text;
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 2000);
+    function submitOrder() {
+      const name=document.getElementById('inputName').value.trim();
+      const phone=document.getElementById('inputPhone').value.trim();
+      if(!name){showToast('Введите имя');return;}
+      if(!phone||phone.length<6){showToast('Введите телефон');return;}
+      const data={action:'order',name,phone,
+        address:document.getElementById('inputAddress').value.trim(),
+        comment:document.getElementById('inputComment').value.trim(),
+        calc:calc.form?{form:LABELS.form[calc.form],facade:LABELS.facade[calc.facade],
+          counter:LABELS.counter[calc.counter],length:document.getElementById('lengthSlider').value,
+          price:document.getElementById('totalPrice')?.textContent||''}:null};
+      try{tg.sendData(JSON.stringify(data));}catch(e){console.log('Order:',data);}
+      if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      document.getElementById('order-form').classList.remove('active');
+      document.getElementById('order-success').classList.add('active');
     }
 
-    // Показать страницу
+    function resetOrder() {
+      ['inputName','inputPhone','inputAddress','inputComment'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('order-success').classList.remove('active');
+      document.getElementById('order-form').classList.add('active');
+    }
+
+    function fmt(n){return new Intl.NumberFormat('ru-RU').format(n);}
+    function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000);}
+
+    renderSteps();
     document.body.classList.add('ready');
+
+    document.getElementById('inputPhone').addEventListener('input',function(){
+      let v=this.value.replace(/\D/g,'');
+      if(v.startsWith('8'))v='7'+v.slice(1);
+      if(v.length>0){let f='+7';if(v.length>1)f+=' ('+v.slice(1,4);if(v.length>4)f+=') '+v.slice(4,7);if(v.length>7)f+='-'+v.slice(7,9);if(v.length>9)f+='-'+v.slice(9,11);this.value=f;}
+    });
   </script>
 </body>
 </html>
