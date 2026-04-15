@@ -3,160 +3,367 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Shira Kitchen</title>
+  <title>shirA KITCHEN</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: var(--tg-theme-bg-color, #ffffff);
-      --text: var(--tg-theme-text-color, #1a1a1a);
-      --hint: var(--tg-theme-hint-color, #999999);
-      --btn: var(--tg-theme-button-color, #2a9d5c);
-      --btn-text: var(--tg-theme-button-text-color, #ffffff);
-      --card: var(--tg-theme-secondary-bg-color, #f4f4f5);
-      --accent: #2a9d5c;
-      --accent-light: #e8f5ee;
+      --bg: #1a0a0f;
+      --bg2: #2a1520;
+      --bg3: #3a1f2d;
+      --text: #f2e8eb;
+      --text-dim: #9a7a85;
+      --accent: #c9a96e;
+      --accent-light: rgba(201,169,110,0.15);
+      --accent-glow: rgba(201,169,110,0.3);
+      --burgundy: #6b2d42;
+      --burgundy-light: #8a3d55;
+      --card: rgba(255,255,255,0.05);
+      --card-border: rgba(201,169,110,0.12);
       --radius: 16px;
+      --danger: #e74c3c;
     }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: 'Nunito', -apple-system, sans-serif;
+      font-family: 'Montserrat', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       padding: 0 16px 120px;
       -webkit-tap-highlight-color: transparent;
-      opacity: 0; transition: opacity 0.3s;
+      opacity: 0; transition: opacity 0.4s;
+      overflow-x: hidden;
     }
     body.ready { opacity: 1; }
 
-    .logo { text-align: center; padding: 24px 0 8px; }
-    .logo-text { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
-    .logo-text span { color: var(--accent); }
-    .logo-sub { font-size: 13px; color: var(--hint); margin-top: 2px; }
-
-    .tabs { display: flex; gap: 6px; margin: 16px 0; background: var(--card); border-radius: 12px; padding: 4px; }
-    .tab {
-      flex: 1; text-align: center; padding: 10px 0; font-size: 14px; font-weight: 700;
-      border-radius: 10px; cursor: pointer; transition: all 0.25s; color: var(--hint);
-      border: none; background: none; font-family: inherit;
+    /* ── Ambient glow ── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -40%;
+      left: -20%;
+      width: 140%;
+      height: 80%;
+      background: radial-gradient(ellipse at center, rgba(107,45,66,0.3) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
     }
-    .tab.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
-    .steps-bar { display: flex; gap: 6px; margin-bottom: 20px; }
-    .step-dot { flex: 1; height: 4px; border-radius: 2px; background: var(--card); transition: background 0.3s; }
-    .step-dot.done { background: var(--accent); }
-    .step-dot.current { background: var(--accent); opacity: 0.5; }
+    body > * { position: relative; z-index: 1; }
 
+    /* ── Logo ── */
+    .logo {
+      text-align: center;
+      padding: 28px 0 12px;
+    }
+    .logo-main {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 32px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: var(--text);
+    }
+    .logo-main b {
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .logo-sub {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-top: 2px;
+    }
+    .logo-line {
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 12px auto 0;
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin: 20px 0;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 4px;
+      backdrop-filter: blur(10px);
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 11px 0;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: var(--text-dim);
+      border: none;
+      background: none;
+    }
+    .tab.active {
+      background: linear-gradient(135deg, var(--burgundy), var(--burgundy-light));
+      color: var(--text);
+      box-shadow: 0 4px 16px rgba(107,45,66,0.4);
+    }
+
+    /* ── Steps ── */
+    .steps-bar { display: flex; gap: 8px; margin-bottom: 24px; padding: 0 20px; }
+    .step-dot {
+      flex: 1; height: 2px; border-radius: 1px;
+      background: var(--bg3); transition: all 0.4s;
+    }
+    .step-dot.done { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+    .step-dot.current { background: var(--accent); opacity: 0.4; }
+
+    /* ── Section ── */
     .section { display: none; }
-    .section.active { display: block; animation: fadeUp 0.3s ease; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .section.active { display: block; animation: fadeUp 0.35s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-    .section-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-    .section-desc { font-size: 13px; color: var(--hint); margin-bottom: 16px; }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .section-desc {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 18px;
+      font-weight: 400;
+    }
 
-    .options { display: flex; flex-direction: column; gap: 8px; }
+    /* ── Option cards ── */
+    .options { display: flex; flex-direction: column; gap: 10px; }
+
     .option {
-      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
-      background: var(--card); border-radius: var(--radius); border: 2px solid transparent;
-      cursor: pointer; transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.25s;
+      backdrop-filter: blur(8px);
     }
     .option:active { transform: scale(0.98); }
-    .option.selected { border-color: var(--accent); background: var(--accent-light); }
+    .option.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: 0 0 20px rgba(201,169,110,0.1);
+    }
 
     .option-icon {
-      width: 44px; height: 44px; border-radius: 12px; background: var(--bg);
-      display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
-    }
-    .option.selected .option-icon { background: var(--accent); }
-    .option.selected .option-icon span { filter: brightness(10); }
-    .option-info { flex: 1; }
-    .option-name { font-size: 15px; font-weight: 700; }
-    .option-price { font-size: 12px; color: var(--hint); margin-top: 1px; }
-    .option.selected .option-price { color: var(--accent); }
-    .option-check {
-      width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd;
+      width: 48px; height: 48px; border-radius: 14px;
+      background: var(--bg3);
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px; color: white; transition: all 0.2s; flex-shrink: 0;
+      font-size: 20px; flex-shrink: 0;
+      transition: all 0.25s;
     }
-    .option.selected .option-check { background: var(--accent); border-color: var(--accent); }
+    .option.selected .option-icon {
+      background: linear-gradient(135deg, var(--burgundy), var(--burgundy-light));
+      box-shadow: 0 4px 12px rgba(107,45,66,0.4);
+    }
 
-    .slider-wrap { background: var(--card); border-radius: var(--radius); padding: 20px 16px; }
-    .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .slider-label { font-size: 14px; color: var(--hint); }
-    .slider-value { font-size: 24px; font-weight: 800; }
-    .slider-value span { font-size: 16px; font-weight: 600; color: var(--hint); }
+    .option-info { flex: 1; }
+    .option-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .option-price {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      font-weight: 400;
+    }
+    .option.selected .option-name { color: var(--accent); }
+
+    .option-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1.5px solid var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--bg);
+      transition: all 0.25s; flex-shrink: 0;
+    }
+    .option.selected .option-check {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* ── Slider ── */
+    .slider-wrap {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px 18px;
+      backdrop-filter: blur(8px);
+    }
+    .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
+    .slider-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+    .slider-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px; font-weight: 600; color: var(--accent);
+    }
+    .slider-value span { font-size: 18px; color: var(--text-dim); }
 
     input[type="range"] {
-      width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
-      border-radius: 3px; outline: none;
-      background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--val, 22%), #ddd var(--val, 22%));
+      width: 100%; height: 4px; -webkit-appearance: none; appearance: none;
+      border-radius: 2px; outline: none;
+      background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--val, 22%), var(--bg3) var(--val, 22%));
     }
     input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%;
-      background: var(--accent); border: 3px solid white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer;
+      -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+      background: var(--accent); border: 3px solid var(--bg);
+      box-shadow: 0 0 12px var(--accent-glow); cursor: pointer;
     }
-    .slider-marks { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: var(--hint); }
+    .slider-marks { display: flex; justify-content: space-between; margin-top: 10px; font-size: 10px; color: var(--text-dim); }
 
+    /* ── Result ── */
     .result-card {
-      background: linear-gradient(135deg, var(--accent), #1e7a45);
-      border-radius: var(--radius); padding: 24px 20px; color: white; text-align: center; margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--burgundy), #4a1e30, var(--burgundy-light));
+      border: 1px solid rgba(201,169,110,0.2);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      text-align: center;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
     }
-    .result-label { font-size: 13px; opacity: 0.8; }
-    .result-price { font-size: 36px; font-weight: 800; margin: 4px 0; }
-    .result-note { font-size: 12px; opacity: 0.7; }
+    .result-card::before {
+      content: '';
+      position: absolute;
+      top: -50%; right: -50%;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle, rgba(201,169,110,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .result-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.6);
+    }
+    .result-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 6px 0;
+      text-shadow: 0 0 30px var(--accent-glow);
+    }
+    .result-note { font-size: 11px; color: rgba(255,255,255,0.5); }
 
-    .result-breakdown { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
-    .breakdown-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
-    .breakdown-row:not(:last-child) { border-bottom: 1px solid rgba(128,128,128,0.12); }
-    .breakdown-label { color: var(--hint); }
-    .breakdown-value { font-weight: 700; }
+    .result-breakdown {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 14px;
+    }
+    .breakdown-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 13px; }
+    .breakdown-row:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .breakdown-label { color: var(--text-dim); }
+    .breakdown-value { font-weight: 600; color: var(--text); }
 
-    .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-row { display: flex; gap: 10px; margin-top: 14px; }
     .btn {
-      flex: 1; padding: 14px; border-radius: 12px; border: none; font-family: inherit;
-      font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+      flex: 1; padding: 15px; border-radius: 14px; border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+      cursor: pointer; transition: all 0.2s; text-transform: uppercase;
     }
     .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-secondary { background: var(--card); color: var(--text); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #b8944a);
+      color: var(--bg); box-shadow: 0 4px 20px rgba(201,169,110,0.3);
+    }
+    .btn-secondary {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      color: var(--text-dim);
+    }
 
-    .form-group { margin-bottom: 14px; }
-    .form-label { font-size: 13px; font-weight: 700; color: var(--hint); margin-bottom: 6px; display: block; }
+    /* ── Form ── */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      font-size: 10px; font-weight: 600; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 8px; display: block;
+    }
     .form-input {
-      width: 100%; padding: 14px 16px; border-radius: 12px; border: 2px solid #e0e0e0;
-      font-family: inherit; font-size: 16px; background: var(--card); color: var(--text);
-      outline: none; transition: border-color 0.2s;
+      width: 100%; padding: 15px 16px; border-radius: 14px;
+      border: 1px solid var(--card-border);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px; font-weight: 400;
+      background: var(--card); color: var(--text);
+      outline: none; transition: border-color 0.3s;
+      backdrop-filter: blur(8px);
     }
-    .form-input:focus { border-color: var(--accent); }
-    .form-input::placeholder { color: var(--hint); }
+    .form-input:focus { border-color: var(--accent); box-shadow: 0 0 16px rgba(201,169,110,0.1); }
+    .form-input::placeholder { color: var(--text-dim); font-weight: 300; }
 
-    .success { text-align: center; padding: 40px 20px; }
+    /* ── Success ── */
+    .success { text-align: center; padding: 48px 20px; }
     .success-icon {
-      width: 80px; height: 80px; border-radius: 50%; background: var(--accent-light);
-      display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 16px;
+      width: 88px; height: 88px; border-radius: 50%;
+      background: var(--accent-light);
+      border: 1px solid rgba(201,169,110,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; margin: 0 auto 20px;
     }
-    .success-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
-    .success-text { font-size: 14px; color: var(--hint); line-height: 1.5; }
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; font-weight: 600; margin-bottom: 8px;
+    }
+    .success-text { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
 
     .toast {
-      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
-      background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 10px;
-      font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 99;
+      position: fixed; bottom: 80px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--accent); color: var(--bg);
+      padding: 10px 24px; border-radius: 12px;
+      font-size: 13px; font-weight: 600;
+      opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 99;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--card-border), transparent);
+      margin: 4px 0 20px;
+    }
   </style>
 </head>
 <body>
   <div class="logo">
-    <div class="logo-text">shir<span>A</span> кухни</div>
-    <div class="logo-sub">Калькулятор стоимости кухни</div>
+    <div class="logo-main">shir<b>A</b></div>
+    <div class="logo-sub">kitchen</div>
+    <div class="logo-line"></div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('calc')">🧮 Калькулятор</button>
-    <button class="tab" onclick="switchTab('order')">📐 Замер</button>
+    <button class="tab active" onclick="switchTab('calc')">Калькулятор</button>
+    <button class="tab" onclick="switchTab('order')">Замер</button>
   </div>
 
   <div id="tab-calc">
@@ -164,53 +371,55 @@
 
     <div class="section active" id="step-1">
       <div class="section-title">Форма кухни</div>
-      <div class="section-desc">Выберите планировку вашей кухни</div>
+      <div class="section-desc">Выберите планировку</div>
+      <div class="divider"></div>
       <div class="options">
         <div class="option" onclick="sel(this,'form','straight')">
-          <div class="option-icon"><span>━</span></div>
+          <div class="option-icon">━</div>
           <div class="option-info"><div class="option-name">Прямая</div><div class="option-price">Вдоль одной стены</div></div>
           <div class="option-check">✓</div>
         </div>
         <div class="option" onclick="sel(this,'form','l-shape')">
-          <div class="option-icon"><span>⌐</span></div>
-          <div class="option-info"><div class="option-name">Угловая (Г-образная)</div><div class="option-price">Коэффициент ×1.15</div></div>
+          <div class="option-icon">⌐</div>
+          <div class="option-info"><div class="option-name">Угловая</div><div class="option-price">Г-образная · ×1.15</div></div>
           <div class="option-check">✓</div>
         </div>
         <div class="option" onclick="sel(this,'form','u-shape')">
-          <div class="option-icon"><span>⊔</span></div>
-          <div class="option-info"><div class="option-name">П-образная</div><div class="option-price">Коэффициент ×1.3</div></div>
+          <div class="option-icon">⊔</div>
+          <div class="option-info"><div class="option-name">П-образная</div><div class="option-price">Три стены · ×1.3</div></div>
           <div class="option-check">✓</div>
         </div>
         <div class="option" onclick="sel(this,'form','island')">
-          <div class="option-icon"><span>▣</span></div>
-          <div class="option-info"><div class="option-name">С островом</div><div class="option-price">Коэффициент ×1.5</div></div>
+          <div class="option-icon">◇</div>
+          <div class="option-info"><div class="option-name">С островом</div><div class="option-price">Премиум · ×1.5</div></div>
           <div class="option-check">✓</div>
         </div>
       </div>
     </div>
 
     <div class="section" id="step-2">
-      <div class="section-title">Материал фасадов</div>
-      <div class="section-desc">Влияет на внешний вид и долговечность</div>
+      <div class="section-title">Фасады</div>
+      <div class="section-desc">Материал и покрытие</div>
+      <div class="divider"></div>
       <div class="options">
         <div class="option" onclick="sel(this,'facade','ldsp')">
-          <div class="option-icon"><span>🪵</span></div>
-          <div class="option-info"><div class="option-name">ЛДСП</div><div class="option-price">от 4 500 ₽/м.п.</div></div>
+          <div class="option-icon">▧</div>
+          <div class="option-info"><div class="option-name">ЛДСП</div><div class="option-price">от 4 500 ₽ / м.п.</div></div>
           <div class="option-check">✓</div>
         </div>
         <div class="option" onclick="sel(this,'facade','mdf-film')">
-          <div class="option-icon"><span>🎨</span></div>
-          <div class="option-info"><div class="option-name">МДФ плёнка</div><div class="option-price">от 6 000 ₽/м.п.</div></div>
+          <div class="option-icon">▨</div>
+          <div class="option-info"><div class="option-name">МДФ плёнка</div><div class="option-price">от 6 000 ₽ / м.п.</div></div>
           <div class="option-check">✓</div>
         </div>
         <div class="option" onclick="sel(this,'facade','mdf-enamel')">
-          <div class="option-icon"><span>✨</span></div>
-          <div class="option-info"><div class="option-name">МДФ эмаль</div><div class="option-price">от 9 000 ₽/м.п.</div></div>
+          <div class="option-icon">◈</div>
+          <div class="option-info"><div class="option-name">МДФ эмаль</div><div class="option-price">от 9 000 ₽ / м.п.</div></div>
           <div class="option-check">✓</div>
         </div>
         <div class="option" onclick="sel(this,'facade','massiv')">
-          <div class="option-icon"><span>🌳</span></div>
-          <div class="option-info"><div class="option-name">Массив дерева</div><div class="option-price">от 15 000 ₽/м.п.</div></div>
+          <div class="option-icon">◆</div>
+          <div class="option-info"><div class="option-name">Массив дерева</div><div class="option-price">от 15 000 ₽ / м.п.</div></div>
           <div class="option-check">✓</div>
         </div>
       </div>
@@ -218,49 +427,51 @@
 
     <div class="section" id="step-3">
       <div class="section-title">Столешница</div>
-      <div class="section-desc">Рабочая поверхность вашей кухни</div>
+      <div class="section-desc">Рабочая поверхность</div>
+      <div class="divider"></div>
       <div class="options">
         <div class="option" onclick="sel(this,'counter','laminate')">
-          <div class="option-icon"><span>📋</span></div>
-          <div class="option-info"><div class="option-name">Ламинат (постформинг)</div><div class="option-price">от 2 500 ₽/м.п.</div></div>
+          <div class="option-icon">▬</div>
+          <div class="option-info"><div class="option-name">Постформинг</div><div class="option-price">от 2 500 ₽ / м.п.</div></div>
           <div class="option-check">✓</div>
         </div>
         <div class="option" onclick="sel(this,'counter','stone')">
-          <div class="option-icon"><span>🪨</span></div>
-          <div class="option-info"><div class="option-name">Искусственный камень</div><div class="option-price">от 8 000 ₽/м.п.</div></div>
+          <div class="option-icon">◐</div>
+          <div class="option-info"><div class="option-name">Искусственный камень</div><div class="option-price">от 8 000 ₽ / м.п.</div></div>
           <div class="option-check">✓</div>
         </div>
         <div class="option" onclick="sel(this,'counter','granite')">
-          <div class="option-icon"><span>💎</span></div>
-          <div class="option-info"><div class="option-name">Натуральный камень</div><div class="option-price">от 15 000 ₽/м.п.</div></div>
+          <div class="option-icon">◉</div>
+          <div class="option-info"><div class="option-name">Натуральный камень</div><div class="option-price">от 15 000 ₽ / м.п.</div></div>
           <div class="option-check">✓</div>
         </div>
       </div>
     </div>
 
     <div class="section" id="step-4">
-      <div class="section-title">Длина кухни</div>
-      <div class="section-desc">Укажите общую длину в метрах</div>
+      <div class="section-title">Длина</div>
+      <div class="section-desc">Общий погонный метраж</div>
+      <div class="divider"></div>
       <div class="slider-wrap">
         <div class="slider-header">
           <span class="slider-label">Длина</span>
           <span class="slider-value" id="lengthValue">2.5 <span>м</span></span>
         </div>
         <input type="range" id="lengthSlider" min="1.5" max="6" step="0.1" value="2.5" oninput="updateSlider(this)">
-        <div class="slider-marks"><span>1.5 м</span><span>3 м</span><span>4.5 м</span><span>6 м</span></div>
+        <div class="slider-marks"><span>1.5</span><span>3.0</span><span>4.5</span><span>6.0</span></div>
       </div>
-      <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="showResult()">Рассчитать стоимость</button>
+      <button class="btn btn-primary" style="width:100%;margin-top:20px" onclick="showResult()">Рассчитать</button>
     </div>
 
     <div class="section" id="step-5">
       <div class="result-card">
         <div class="result-label">Примерная стоимость</div>
         <div class="result-price" id="totalPrice">0 ₽</div>
-        <div class="result-note">Точная цена после замера</div>
+        <div class="result-note">Точная цена — после замера</div>
       </div>
       <div class="result-breakdown" id="breakdown"></div>
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="resetCalc()">Пересчитать</button>
+        <button class="btn btn-secondary" onclick="resetCalc()">Заново</button>
         <button class="btn btn-primary" onclick="switchTab('order')">Заявка на замер</button>
       </div>
     </div>
@@ -268,20 +479,21 @@
 
   <div id="tab-order" style="display:none;">
     <div class="section active" id="order-form">
-      <div class="section-title">Заявка на бесплатный замер</div>
-      <div class="section-desc">Замерщик приедет в удобное время и рассчитает точную стоимость</div>
-      <div class="form-group"><label class="form-label">Ваше имя</label><input class="form-input" id="inputName" type="text" placeholder="Как к вам обращаться?"></div>
+      <div class="section-title">Бесплатный замер</div>
+      <div class="section-desc">Замерщик приедет и рассчитает точную стоимость</div>
+      <div class="divider"></div>
+      <div class="form-group"><label class="form-label">Имя</label><input class="form-input" id="inputName" type="text" placeholder="Как к вам обращаться?"></div>
       <div class="form-group"><label class="form-label">Телефон</label><input class="form-input" id="inputPhone" type="tel" placeholder="+7 (___) ___-__-__"></div>
-      <div class="form-group"><label class="form-label">Адрес (район / улица)</label><input class="form-input" id="inputAddress" type="text" placeholder="Нальчик, ул. ..."></div>
+      <div class="form-group"><label class="form-label">Адрес</label><input class="form-input" id="inputAddress" type="text" placeholder="Город, улица"></div>
       <div class="form-group"><label class="form-label">Комментарий</label><input class="form-input" id="inputComment" type="text" placeholder="Пожелания, удобное время..."></div>
-      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="submitOrder()">Отправить заявку</button>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="submitOrder()">Отправить</button>
     </div>
     <div class="section" id="order-success">
       <div class="success">
-        <div class="success-icon">✅</div>
-        <div class="success-title">Заявка отправлена!</div>
+        <div class="success-icon">✓</div>
+        <div class="success-title">Заявка принята</div>
         <div class="success-text">Мы свяжемся с вами в ближайшее время для согласования даты и времени замера.</div>
-        <button class="btn btn-secondary" style="margin-top:20px" onclick="resetOrder()">Новая заявка</button>
+        <button class="btn btn-secondary" style="margin-top:24px" onclick="resetOrder()">Новая заявка</button>
       </div>
     </div>
   </div>
@@ -291,6 +503,8 @@
   <script>
     const tg = window.Telegram.WebApp;
     tg.ready(); tg.expand();
+    tg.setHeaderColor('#1a0a0f');
+    tg.setBackgroundColor('#1a0a0f');
 
     const PRICES = {
       facade: { 'ldsp': 4500, 'mdf-film': 6000, 'mdf-enamel': 9000, 'massiv': 15000 },
@@ -300,13 +514,13 @@
     const LABELS = {
       form: { 'straight': 'Прямая', 'l-shape': 'Угловая', 'u-shape': 'П-образная', 'island': 'С островом' },
       facade: { 'ldsp': 'ЛДСП', 'mdf-film': 'МДФ плёнка', 'mdf-enamel': 'МДФ эмаль', 'massiv': 'Массив' },
-      counter: { 'laminate': 'Ламинат', 'stone': 'Искусств. камень', 'granite': 'Натуральный камень' }
+      counter: { 'laminate': 'Постформинг', 'stone': 'Искусств. камень', 'granite': 'Натуральный камень' }
     };
 
     let calc = { form: null, facade: null, counter: null }, currentStep = 1;
 
     function switchTab(tab) {
-      document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (tab==='calc'&&i===0)||(tab==='order'&&i===1)));
+      document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (tab==='calc'&&i===0)||(tab==='order'&&i===1)));
       document.getElementById('tab-calc').style.display = tab==='calc'?'block':'none';
       document.getElementById('tab-order').style.display = tab==='order'?'block':'none';
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -325,77 +539,91 @@
 
     function sel(el, key, value) {
       calc[key] = value;
-      el.parentElement.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+      el.parentElement.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-      setTimeout(()=>{ if(key==='form')goToStep(2); else if(key==='facade')goToStep(3); else if(key==='counter')goToStep(4); }, 250);
+      setTimeout(() => {
+        if (key==='form') goToStep(2);
+        else if (key==='facade') goToStep(3);
+        else if (key==='counter') goToStep(4);
+      }, 300);
     }
 
     function updateSlider(el) {
-      const pct=((el.value-el.min)/(el.max-el.min))*100;
-      el.style.setProperty('--val',pct+'%');
-      document.getElementById('lengthValue').innerHTML=el.value+' <span>м</span>';
+      const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+      el.style.setProperty('--val', pct + '%');
+      document.getElementById('lengthValue').innerHTML = el.value + ' <span>м</span>';
     }
-    setTimeout(()=>updateSlider(document.getElementById('lengthSlider')),0);
+    setTimeout(() => updateSlider(document.getElementById('lengthSlider')), 0);
 
     function showResult() {
-      if(!calc.form||!calc.facade||!calc.counter){showToast('Заполните все параметры');return;}
-      const len=parseFloat(document.getElementById('lengthSlider').value);
-      const ft=PRICES.facade[calc.facade]*len, ct=PRICES.counter[calc.counter]*len;
-      const fk=PRICES.formK[calc.form], base=ft+ct, fit=Math.round(base*0.25);
-      const total=Math.round((base+fit)*fk);
-      document.getElementById('totalPrice').textContent=fmt(total)+' ₽';
-      document.getElementById('breakdown').innerHTML=`
-        <div class="breakdown-row"><span class="breakdown-label">Форма</span><span class="breakdown-value">${LABELS.form[calc.form]} (×${fk})</span></div>
-        <div class="breakdown-row"><span class="breakdown-label">Фасады (${LABELS.facade[calc.facade]})</span><span class="breakdown-value">${fmt(ft)} ₽</span></div>
+      if (!calc.form || !calc.facade || !calc.counter) { showToast('Заполните все параметры'); return; }
+      const len = parseFloat(document.getElementById('lengthSlider').value);
+      const ft = PRICES.facade[calc.facade] * len;
+      const ct = PRICES.counter[calc.counter] * len;
+      const fk = PRICES.formK[calc.form];
+      const fit = Math.round((ft + ct) * 0.25);
+      const total = Math.round((ft + ct + fit) * fk);
+      document.getElementById('totalPrice').textContent = fmt(total) + ' ₽';
+      document.getElementById('breakdown').innerHTML = `
+        <div class="breakdown-row"><span class="breakdown-label">Форма</span><span class="breakdown-value">${LABELS.form[calc.form]} ×${fk}</span></div>
+        <div class="breakdown-row"><span class="breakdown-label">Фасады</span><span class="breakdown-value">${fmt(ft)} ₽</span></div>
         <div class="breakdown-row"><span class="breakdown-label">Столешница</span><span class="breakdown-value">${fmt(ct)} ₽</span></div>
         <div class="breakdown-row"><span class="breakdown-label">Фурнитура</span><span class="breakdown-value">${fmt(fit)} ₽</span></div>
         <div class="breakdown-row"><span class="breakdown-label">Длина</span><span class="breakdown-value">${len} м</span></div>`;
-      if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
       goToStep(5);
     }
 
     function resetCalc() {
-      calc={form:null,facade:null,counter:null};
-      document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
-      document.getElementById('lengthSlider').value=2.5;
+      calc = { form: null, facade: null, counter: null };
+      document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      document.getElementById('lengthSlider').value = 2.5;
       updateSlider(document.getElementById('lengthSlider'));
       goToStep(1);
     }
 
     function submitOrder() {
-      const name=document.getElementById('inputName').value.trim();
-      const phone=document.getElementById('inputPhone').value.trim();
-      if(!name){showToast('Введите имя');return;}
-      if(!phone||phone.length<6){showToast('Введите телефон');return;}
-      const data={action:'order',name,phone,
-        address:document.getElementById('inputAddress').value.trim(),
-        comment:document.getElementById('inputComment').value.trim(),
-        calc:calc.form?{form:LABELS.form[calc.form],facade:LABELS.facade[calc.facade],
-          counter:LABELS.counter[calc.counter],length:document.getElementById('lengthSlider').value,
-          price:document.getElementById('totalPrice')?.textContent||''}:null};
-      try{tg.sendData(JSON.stringify(data));}catch(e){console.log('Order:',data);}
-      if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      const name = document.getElementById('inputName').value.trim();
+      const phone = document.getElementById('inputPhone').value.trim();
+      if (!name) { showToast('Введите имя'); return; }
+      if (!phone || phone.length < 6) { showToast('Введите телефон'); return; }
+      const data = { action: 'order', name, phone,
+        address: document.getElementById('inputAddress').value.trim(),
+        comment: document.getElementById('inputComment').value.trim(),
+        calc: calc.form ? { form: LABELS.form[calc.form], facade: LABELS.facade[calc.facade],
+          counter: LABELS.counter[calc.counter], length: document.getElementById('lengthSlider').value,
+          price: document.getElementById('totalPrice')?.textContent || '' } : null
+      };
+      try { tg.sendData(JSON.stringify(data)); } catch(e) { console.log('Order:', data); }
+      if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
       document.getElementById('order-form').classList.remove('active');
       document.getElementById('order-success').classList.add('active');
     }
 
     function resetOrder() {
-      ['inputName','inputPhone','inputAddress','inputComment'].forEach(id=>document.getElementById(id).value='');
+      ['inputName','inputPhone','inputAddress','inputComment'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('order-success').classList.remove('active');
       document.getElementById('order-form').classList.add('active');
     }
 
-    function fmt(n){return new Intl.NumberFormat('ru-RU').format(n);}
-    function showToast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000);}
+    function fmt(n) { return new Intl.NumberFormat('ru-RU').format(n); }
+    function showToast(t) { const e=document.getElementById('toast'); e.textContent=t; e.classList.add('show'); setTimeout(()=>e.classList.remove('show'),2000); }
 
     renderSteps();
     document.body.classList.add('ready');
 
-    document.getElementById('inputPhone').addEventListener('input',function(){
-      let v=this.value.replace(/\D/g,'');
-      if(v.startsWith('8'))v='7'+v.slice(1);
-      if(v.length>0){let f='+7';if(v.length>1)f+=' ('+v.slice(1,4);if(v.length>4)f+=') '+v.slice(4,7);if(v.length>7)f+='-'+v.slice(7,9);if(v.length>9)f+='-'+v.slice(9,11);this.value=f;}
+    document.getElementById('inputPhone').addEventListener('input', function() {
+      let v = this.value.replace(/\D/g, '');
+      if (v.startsWith('8')) v = '7' + v.slice(1);
+      if (v.length > 0) {
+        let f = '+7';
+        if (v.length > 1) f += ' (' + v.slice(1,4);
+        if (v.length > 4) f += ') ' + v.slice(4,7);
+        if (v.length > 7) f += '-' + v.slice(7,9);
+        if (v.length > 9) f += '-' + v.slice(9,11);
+        this.value = f;
+      }
     });
   </script>
 </body>
